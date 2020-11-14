@@ -31,6 +31,7 @@ dependencies:
   flutter_midi: ^1.0.2
   tonal: ^2.2.2+1
   tonic: ^0.2.3
+  speech_recognition: ^0.3.0+1
 
 dev_dependencies:
   flutter_test:

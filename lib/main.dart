@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
+import 'package:music_app/speech.dart';
 import 'package:tonal/note/note.dart' as TonalNote;
 import 'package:tonal/chord/chord.dart' as TonalChord;
 import 'package:tonal/scale/scale.dart' as TonalScale;
@@ -50,6 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String scaleValue = ScaleData.sdata.keys.first;
   List availableChords = new List();
   Timer timer;
+
+  String _speechResult = "";
 
   @override
   void initState() {
@@ -318,6 +321,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   "Play Button",
                   style: TextStyle(fontSize: 20.0),
                 )),
+            SpeechWidget(
+              updateResultFxn: (value) => {
+                _speechResult = value,
+                print("yoyo: " + value),
+              },
+            ),
           ],
         ),
       ),
