@@ -10,6 +10,9 @@ import 'package:tonal/chord/chord.dart' as TonalChord;
 import 'package:tonal/scale/scale.dart' as TonalScale;
 import 'package:tonic/tonic.dart' as Tonic;
 
+import 'package:tonal/dictionary/data/chords.dart' as ChordData;
+import 'package:tonal/dictionary/data/scales.dart' as ScaleData;
+
 void main() {
   runApp(MyApp());
 }
@@ -43,13 +46,28 @@ class _MyHomePageState extends State<MyHomePage> {
   String _value = "Piano.sf2";
   String noteValue = 'C';
   String octaveValue = '4';
+  String chordValue = ChordData.cdata.keys.first;
+  String scaleValue = ScaleData.sdata.keys.first;
+  List availableChords = new List();
   Timer timer;
 
   @override
   void initState() {
     load(_value);
-
+    updateAvailableChordsList();
     super.initState();
+  }
+
+  void updateAvailableChordsList() {
+    // Clear chord vaiue and available chords
+    chordValue = null;
+    availableChords.clear();
+    print(availableChords);
+
+    // Update list and select first chord
+    availableChords.addAll(TonalScale.chords(scaleValue));
+    chordValue = availableChords.first;
+    print(availableChords);
   }
 
   void load(String asset) async {
@@ -68,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
     print("qn " + quarterNote.toString());
     int ms = (quarterNote).toInt();
     print("ms " + ms.toString());
+
     //
     // // print(TonalScale.modeNames("egyptian"));
     //
@@ -109,12 +128,18 @@ class _MyHomePageState extends State<MyHomePage> {
     // // print(Chord.parse("C " + list["Dorian"].name));
     // print("yoyo - end");
 
-    // var notes = getMidiNotesFromTonic('Cmaj7');
-    var notes = getMidiNotesFromTonal(noteValue + octaveValue + ' Major');
+    var notes = getMidiNotesFromTonic(noteValue + chordValue, octaveValue);
+    // var notes = getMidiNotesFromTonal(noteValue + octaveValue + ' Major');
+    print("notes" + notes.toString());
 
     if (notes == null) {
       print("Cannot play: no notes found!");
       return;
+    } else {
+      if (notes[0] == null) {
+        print("Cannot play: no notes found!");
+        return;
+      }
     }
 
     // to ensure we don't play it again
@@ -147,8 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return chord.map((note) => note.midiNumber).toList();
   }
 
-  List getMidiNotesFromTonic(String chordName) {
-    int interval = 4;
+  List getMidiNotesFromTonic(String chordName, String interval) {
     // print(TonalChord.names());
     // print("Tone C4 midi: ");
     // print(TonalNote.midi("C4"));
@@ -186,6 +210,47 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            DropdownButton(
+              value: scaleValue,
+              elevation: 16,
+              underline: Container(
+                height: 2,
+                color: Colors.deepPurpleAccent,
+              ),
+              onChanged: (String newValue) {
+                setState(() {
+                  scaleValue = newValue;
+                  updateAvailableChordsList();
+                });
+              },
+              items: ScaleData.sdata.keys
+                  .toList()
+                  .map<DropdownMenuItem<String>>((var value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            DropdownButton(
+              value: chordValue,
+              elevation: 16,
+              underline: Container(
+                height: 2,
+                color: Colors.deepPurpleAccent,
+              ),
+              onChanged: (String newValue) {
+                setState(() {
+                  chordValue = newValue;
+                });
+              },
+              items: availableChords.map<DropdownMenuItem<String>>((var value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
             DropdownButton(
               value: octaveValue,
               elevation: 16,
