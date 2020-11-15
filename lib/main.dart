@@ -419,6 +419,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   onChanged: (String newValue) {
                                     setState(() {
                                       scaleValue = newValue;
+                                      updateAvailableChordsList();
                                     });
                                   },
                                   // items: availableChords
