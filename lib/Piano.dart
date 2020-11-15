@@ -20,7 +20,7 @@ class PianoWidget extends StatefulWidget {
 }
 
 class _PianoWidgetAppState extends State<PianoWidget> {
-  double get keyWidth => 100 + (100 * _widthRatio);
+  double get keyWidth => 98 + (98 * _widthRatio);
   double _widthRatio = 0.0;
   bool _showLabels = true;
   SnackBar snackBar;

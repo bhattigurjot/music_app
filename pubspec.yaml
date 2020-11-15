@@ -32,6 +32,7 @@ dependencies:
   tonal: ^2.2.2+1
   tonic: ^0.2.3
   speech_recognition: ^0.3.0+1
+  flutter_fft: ^1.0.1
 
 dev_dependencies:
   flutter_test:

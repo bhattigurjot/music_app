@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 import 'package:music_app/Piano.dart';
+import 'package:music_app/pitch.dart';
 import 'package:music_app/speech.dart';
 import 'package:tonal/note/note.dart' as TonalNote;
 import 'package:tonal/chord/chord.dart' as TonalChord;
@@ -194,6 +195,10 @@ class _MyHomePageState extends State<MyHomePage> {
     Tab(
       icon: Icon(Icons.list),
       text: 'Select',
+    ),
+    Tab(
+      icon: Icon(Icons.record_voice_over_sharp),
+      text: 'Pitch',
     ),
     Tab(
       icon: Icon(Icons.search),
@@ -449,6 +454,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ),
+                ),
+                Center(
+                  child: PitchDetector(),
                 ),
                 Center(
                     child: Column(
