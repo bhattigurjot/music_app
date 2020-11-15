@@ -98,7 +98,7 @@ class _PianoWidgetAppState extends State<PianoWidget> {
     return InkResponse(
       containedInkWell: true,
       radius: keyWidth * 0.25,
-      splashColor: Colors.pink,
+      splashColor: Color(0x55673AB7),
       // highlightColor: Colors.pink,
       onHighlightChanged: (value) => {},
       onTap: () {
@@ -125,7 +125,7 @@ class _PianoWidgetAppState extends State<PianoWidget> {
         // padding: const EdgeInsets.all(3.0),
         decoration: BoxDecoration(
             color: isPlaying
-                ? Colors.pink
+                ? Color(0x55673AB7)
                 : (isBlackKey ? Colors.black : Colors.white),
             // color: isblackKey ? Colors.black : Colors.white,
             border: Border.all()),

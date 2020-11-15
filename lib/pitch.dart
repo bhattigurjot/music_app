@@ -116,7 +116,7 @@ class _PitchDetectorState extends State<PitchDetector> {
                     color: Colors.white,
                     size: 100,
                   ),
-            color: isRecording ? Colors.red : Colors.blue,
+            color: isRecording ? Colors.red.shade400 : Color(0xFF512DA8),
             onPressed: isRecording ? stop : start,
           ),
         ),

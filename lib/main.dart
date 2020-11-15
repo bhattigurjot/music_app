@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
+import 'package:dropdown_search/dropdown_search.dart';
+
 import 'package:music_app/Piano.dart';
 import 'package:music_app/pitch.dart';
 import 'package:music_app/speech.dart';
@@ -27,11 +29,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xFF512DAB),
+        accentColor: Color(0xFF512DAB),
+        // primarySwatch: Colors.purple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Break thy Block'),
+      home: MyHomePage(title: 'Break Thy Block'),
     );
   }
 }
@@ -55,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List notesMidiToPlay = [];
   List availableChords = new List();
   Timer timer;
+  bool isPlaying = false;
 
   String _speechResult = "";
 
@@ -127,12 +133,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
     int currBeat = 1;
     // Play first beat here
+    if (mounted) {
+      setState(() {
+        isPlaying = true;
+      });
+    }
     playChord(notes, ms);
     // Play other beats here
     timer = Timer.periodic(Duration(milliseconds: ms), (timer) {
       playChord(notes, ms);
       // print("currBeat " + currBeat.toString());
-      if (currBeat == beats - 1) timer.cancel();
+      if (currBeat == beats - 1) {
+        if (mounted) {
+          setState(() {
+            isPlaying = false;
+          });
+        }
+        ;
+        timer.cancel();
+      }
+      ;
       currBeat++;
     });
   }
@@ -164,12 +184,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void playMidiNotes(List _notes, bool _play) {
-    if (mounted) {
-      setState(() {
-        _play ? notesMidiToPlay.addAll(_notes) : notesMidiToPlay.clear();
-      });
-    }
-
     Future.forEach(
         _notes,
         (note) => {
@@ -177,11 +191,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   ? _flutterMidi.playMidiNote(midi: note)
                   : _flutterMidi.stopMidiNote(midi: note)
             });
+
+    if (mounted) {
+      setState(() {
+        _play ? notesMidiToPlay.addAll(_notes) : notesMidiToPlay.clear();
+      });
+    }
   }
 
   void stopPlaying() {
     if (timer != null && timer.isActive) {
       timer.cancel();
+    }
+    if (mounted) {
+      setState(() {
+        isPlaying = false;
+      });
     }
   }
 
@@ -248,6 +273,35 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
+                          // Expanded(
+                          //   child: DropdownSearch<String>(
+                          //       mode: Mode.MENU,
+                          //       showSelectedItem: true,
+                          //       items: <String>[
+                          //         'C',
+                          //         'C#',
+                          //         'D',
+                          //         'D#',
+                          //         'E',
+                          //         'F',
+                          //         'F#',
+                          //         'G',
+                          //         'G#',
+                          //         'A',
+                          //         'A#',
+                          //         'B'
+                          //       ],
+                          //       label: "Key",
+                          //       hint: "Select Key",
+                          //       // popupItemDisabled: (String s) =>
+                          //       //     s.startsWith('I'),
+                          //       onChanged: (String newValue) {
+                          //         setState(() {
+                          //           noteValue = newValue;
+                          //         });
+                          //       },
+                          //       selectedItem: noteValue),
+                          // ),
                           Expanded(
                             child: Container(
                               margin: EdgeInsets.only(right: 20),
@@ -431,20 +485,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FlatButton(
-                              onPressed: playSound,
-                              color: Colors.amber,
-                              child: Text(
-                                "Play",
-                                style: TextStyle(fontSize: 20.0),
-                              )),
-                          FlatButton(
-                              onPressed: stopPlaying,
-                              color: Colors.amber,
-                              child: Text(
-                                "Stop",
-                                style: TextStyle(fontSize: 20.0),
-                              )),
+                          FloatingActionButton(
+                            child: isPlaying
+                                ? Icon(
+                                    Icons.stop_rounded,
+                                    color: Colors.white,
+                                    size: 50,
+                                  )
+                                : Icon(
+                                    Icons.play_arrow_sharp,
+                                    color: Colors.white,
+                                    size: 50,
+                                  ),
+                            backgroundColor:
+                                isPlaying ? Colors.red : Color(0xFFFFC107),
+                            onPressed: isPlaying ? stopPlaying : playSound,
+                          ),
                         ],
                       ),
                       PianoWidget(
@@ -470,10 +526,25 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 )),
                 Center(
-                  child: PianoWidget(
-                    allKeys: notesMidiToPlay,
-                    canPlayManually: true,
-                    flutterMidi: _flutterMidi,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          "On your keys\nGet set\nPlay!",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 30,
+                          ),
+                        ),
+                      ),
+                      PianoWidget(
+                        allKeys: notesMidiToPlay,
+                        canPlayManually: true,
+                        flutterMidi: _flutterMidi,
+                      ),
+                    ],
                   ),
                 ),
               ],

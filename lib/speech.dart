@@ -28,7 +28,7 @@ class Language {
 
 class _SpeechWidgetAppState extends State<SpeechWidget> {
   SpeechRecognition _speech;
-  String textResult = "Test";
+  String textResult = "Press record button to record your speech.";
 
   //String _currentLocale = 'en_US';
   Language selectedLang = languages.first;
@@ -85,34 +85,42 @@ class _SpeechWidgetAppState extends State<SpeechWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FloatingActionButton(
-            child: Icon(Icons.keyboard_voice),
-            backgroundColor: Colors.blue,
-            onPressed: _speechRecognitionAvailable && !_isListening
-                ? () => start()
-                : null,
+    return Column(
+      // crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 50),
+          child: FloatingActionButton(
+            child: _isListening
+                ? Icon(
+                    Icons.stop_rounded,
+                    color: Colors.white,
+                    size: 50,
+                  )
+                : Icon(
+                    Icons.keyboard_voice,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+            backgroundColor: _isListening ? Colors.red : Color(0xFFFFC107),
+            onPressed: _isListening ? stop : start,
           ),
-          Text(
+        ),
+        Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.all(10),
+          height: 200,
+          child: Text(
             textResult,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 20,
             ),
             softWrap: true,
           ),
-          FlatButton(
-              onPressed: _isListening ? () => stop() : null,
-              color: Colors.red,
-              child: Text(
-                "Stop",
-                style: TextStyle(fontSize: 20.0),
-              ))
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

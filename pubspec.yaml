@@ -33,6 +33,7 @@ dependencies:
   tonic: ^0.2.3
   speech_recognition: ^0.3.0+1
   flutter_fft: ^1.0.1
+  dropdown_search: ^0.4.6
 
 dev_dependencies:
   flutter_test:
