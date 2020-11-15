@@ -10,6 +10,7 @@ import 'package:music_app/speech.dart';
 import 'package:tonal/note/note.dart' as TonalNote;
 import 'package:tonal/chord/chord.dart' as TonalChord;
 import 'package:tonal/scale/scale.dart' as TonalScale;
+import 'package:tonal/distance/distance.dart' as TonalDistance;
 import 'package:tonic/tonic.dart' as Tonic;
 
 import 'package:tonal/dictionary/data/chords.dart' as ChordData;
@@ -91,6 +92,20 @@ class _MyHomePageState extends State<MyHomePage> {
     print("qn " + quarterNote.toString());
     int ms = (quarterNote).toInt();
     print("ms " + ms.toString());
+
+    var scaleNotes = TonalScale.notes(scaleValue);
+    var intervals = TonalScale.intervals(scaleValue);
+
+    // print("yoyo sn: " + scaleNotes.toString());
+    // print("yoyo in: " + intervals.toString());
+
+    final lift = (fn) => (arr) => arr.split(" ").map(fn).join(" ");
+
+    Future.forEach(intervals, (element) {
+      // print(" original: " + element.toString());
+      final fxn = lift(TonalDistance.transposeBy(element.toString()));
+      // print(" changed: " + fxn("C1"));
+    });
 
     var notes = getMidiNotesFromTonic(noteValue + chordValue, octaveValue);
     // var notes = getMidiNotesFromTonal(noteValue + octaveValue + ' Major');
@@ -219,129 +234,214 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          DropdownButton(
-                            value: noteValue,
-                            elevation: 16,
-                            underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "Key",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                noteValue = newValue;
-                              });
-                            },
-                            items: <String>[
-                              'C',
-                              'C#',
-                              'D',
-                              'D#',
-                              'E',
-                              'F',
-                              'F#',
-                              'G',
-                              'G#',
-                              'A',
-                              'A#',
-                              'B'
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
                           ),
-                          DropdownButton(
-                            value: octaveValue,
-                            elevation: 16,
-                            underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              padding: EdgeInsets.only(left: 10, right: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  value: noteValue,
+                                  elevation: 16,
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      noteValue = newValue;
+                                    });
+                                  },
+                                  items: <String>[
+                                    'C',
+                                    'C#',
+                                    'D',
+                                    'D#',
+                                    'E',
+                                    'F',
+                                    'F#',
+                                    'G',
+                                    'G#',
+                                    'A',
+                                    'A#',
+                                    'B'
+                                  ].map<DropdownMenuItem<String>>((var value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
                             ),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                octaveValue = newValue;
-                              });
-                            },
-                            items: <String>[
-                              '0',
-                              '1',
-                              '2',
-                              '3',
-                              '4',
-                              '5',
-                              '6',
-                              '7',
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "Octave",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              padding: EdgeInsets.only(left: 10, right: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  value: octaveValue,
+                                  elevation: 16,
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      octaveValue = newValue;
+                                    });
+                                  },
+                                  items: <String>[
+                                    '0',
+                                    '1',
+                                    '2',
+                                    '3',
+                                    '4',
+                                    '5',
+                                    '6',
+                                    '7',
+                                  ].map<DropdownMenuItem<String>>((var value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Scale"),
-                          DropdownButton(
-                            value: scaleValue,
-                            elevation: 16,
-                            underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              "Scale",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                scaleValue = newValue;
-                                updateAvailableChordsList();
-                              });
-                            },
-                            items: ScaleData.sdata.keys
-                                .toList()
-                                .map<DropdownMenuItem<String>>((var value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              padding: EdgeInsets.only(left: 10, right: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  value: scaleValue,
+                                  elevation: 16,
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      scaleValue = newValue;
+                                    });
+                                  },
+                                  // items: availableChords
+                                  items: ScaleData.sdata.keys
+                                      .toList()
+                                      .map<DropdownMenuItem<String>>(
+                                          (var value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              "Chord",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              padding: EdgeInsets.only(left: 10, right: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  value: chordValue,
+                                  elevation: 16,
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      chordValue = newValue;
+                                    });
+                                  },
+                                  items: availableChords
+                                      .toList()
+                                      .map<DropdownMenuItem<String>>(
+                                          (var value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Chord"),
-                          DropdownButton(
-                            value: chordValue,
-                            elevation: 16,
-                            underline: Container(
-                              height: 2,
-                              color: Colors.deepPurpleAccent,
-                            ),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                chordValue = newValue;
-                              });
-                            },
-                            items: availableChords
-                                .map<DropdownMenuItem<String>>((var value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
+                          FlatButton(
+                              onPressed: playSound,
+                              color: Colors.amber,
+                              child: Text(
+                                "Play",
+                                style: TextStyle(fontSize: 20.0),
+                              )),
+                          FlatButton(
+                              onPressed: stopPlaying,
+                              color: Colors.amber,
+                              child: Text(
+                                "Stop",
+                                style: TextStyle(fontSize: 20.0),
+                              )),
                         ],
                       ),
-                      FlatButton(
-                          onPressed: playSound,
-                          color: Colors.amber,
-                          child: Text(
-                            "Play Button",
-                            style: TextStyle(fontSize: 20.0),
-                          )),
                       PianoWidget(
                         allKeys: notesMidiToPlay,
                         canPlayManually: false,
@@ -372,6 +472,40 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget CustomDropDownWidget(List itemList, String val) {
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(right: 20),
+        padding: EdgeInsets.only(left: 10, right: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton(
+            // value: chordValue,
+            value: val,
+            elevation: 16,
+            onChanged: (String newValue) {
+              setState(() {
+                // chordValue = newValue;
+                val = newValue;
+              });
+            },
+            // items: availableChords
+            items: itemList.map<DropdownMenuItem<String>>((var value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

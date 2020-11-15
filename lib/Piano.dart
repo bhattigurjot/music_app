@@ -89,6 +89,11 @@ class _PianoWidgetAppState extends State<PianoWidget> {
                   Pitch.fromMidiNumber(i).accidentalsString)
             {isPlaying = true}
         });
+    if (i == 40) {
+      // print("yh: " + i.toString());
+      // print("yh: " + Pitch.fromMidiNumber(i).letterName);
+      isPlaying = false;
+    }
 
     return InkResponse(
       containedInkWell: true,
