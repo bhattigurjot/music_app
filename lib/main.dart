@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
+import 'package:music_app/Piano.dart';
 import 'package:music_app/speech.dart';
 import 'package:tonal/note/note.dart' as TonalNote;
 import 'package:tonal/chord/chord.dart' as TonalChord;
@@ -49,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String octaveValue = '4';
   String chordValue = ChordData.cdata.keys.first;
   String scaleValue = ScaleData.sdata.keys.first;
+  List notesMidiToPlay = [];
   List availableChords = new List();
   Timer timer;
 
@@ -132,6 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // print("yoyo - end");
 
     var notes = getMidiNotesFromTonic(noteValue + chordValue, octaveValue);
+    // setState(() {
+    //   notesMidiToPlay = notes;
+    // });
     // var notes = getMidiNotesFromTonal(noteValue + octaveValue + ' Major');
     print("notes" + notes.toString());
 
@@ -154,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Play other beats here
     timer = Timer.periodic(Duration(milliseconds: ms), (timer) {
       playChord(notes, ms);
+
       print("currBeat " + currBeat.toString());
       if (currBeat == beats - 1) timer.cancel();
       currBeat++;
@@ -187,6 +193,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void playMidiNotes(List _notes, bool _play) {
+    setState(() {
+      _play ? notesMidiToPlay.addAll(_notes) : notesMidiToPlay.clear();
+    });
+
     Future.forEach(
         _notes,
         (note) => {
@@ -326,6 +336,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 _speechResult = value,
                 print("yoyo: " + value),
               },
+            ),
+            PianoWidget(
+              allKeys: notesMidiToPlay,
             ),
           ],
         ),
