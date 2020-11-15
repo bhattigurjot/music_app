@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Music'),
+      home: MyHomePage(title: 'Break thy Block'),
     );
   }
 }
@@ -92,51 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
     int ms = (quarterNote).toInt();
     print("ms " + ms.toString());
 
-    //
-    // // print(TonalScale.modeNames("egyptian"));
-    //
-    // // print(ScalePattern.findByName('Diatonic Major').modes.keys.toList());
-    //
-    // var scalePattern = Tonic.ScalePattern.findByName('Blues');
-    // var list = scalePattern.modes;
-    // print(list);
-    // Future.forEach(list.keys,
-    //     (element) => {print("Mode: " + list[element].intervals.toString())});
-    //
-    // var scale = scalePattern.at(Tonic.PitchClass.parse('A'));
-    // print("scale.pitchClasses");
-    // print(scale.pitchClasses);
-    // // print(scale.pitchClasses[0].toPitch());
-    // // var chord =
-    // //     Chord.fromPitches(scale.pitchClasses.map((e) => e.toPitch()).toList());
-    // for (int i = 0; i < scale.pitchClasses.length; i++) {
-    //   print(Tonic.Chord.parse(scale.pitchClasses[i].toString()));
-    // }
-    // // var chord = Chord.parse(scale.pitchClasses[1].toString());
-    // // print(chord);
-    //
-    // print("yoyo-start");
-    // // print(list["Dorian"].name);
-    // // print(list["Dorian"].modes);
-    // // print(list["Dorian"].intervals);
-    // // print(Chord.fromPitches(scale.pitchClasses
-    // //     .map((e) => e.toPitch())
-    // //     .toList()
-    // //     .getRange(0, 3)
-    // //     .toList()));
-    // // print(ChordPattern.fromIntervals(scale.intervals.getRange(0, 3)));
-    // // print(Tonic.Chord.fromPitches(pitches));
-    // print(Tonic.ChordPattern.fromIntervals(
-    //     [Tonic.Interval.P1, Tonic.Interval.M2, Tonic.Interval.m3]));
-    // print(Tonic.ChordPattern.fromIntervals(
-    //     list["Dorian"].intervals.getRange(0, 3)));
-    // // print(Chord.parse("C " + list["Dorian"].name));
-    // print("yoyo - end");
-
     var notes = getMidiNotesFromTonic(noteValue + chordValue, octaveValue);
-    // setState(() {
-    //   notesMidiToPlay = notes;
-    // });
     // var notes = getMidiNotesFromTonal(noteValue + octaveValue + ' Major');
     print("notes" + notes.toString());
 
@@ -159,8 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Play other beats here
     timer = Timer.periodic(Duration(milliseconds: ms), (timer) {
       playChord(notes, ms);
-
-      print("currBeat " + currBeat.toString());
+      // print("currBeat " + currBeat.toString());
       if (currBeat == beats - 1) timer.cancel();
       currBeat++;
     });
@@ -193,9 +148,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void playMidiNotes(List _notes, bool _play) {
-    setState(() {
-      _play ? notesMidiToPlay.addAll(_notes) : notesMidiToPlay.clear();
-    });
+    if (mounted) {
+      setState(() {
+        _play ? notesMidiToPlay.addAll(_notes) : notesMidiToPlay.clear();
+      });
+    }
 
     Future.forEach(
         _notes,
@@ -213,135 +170,208 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  final List<Tab> tabs = <Tab>[
+    Tab(
+      icon: Icon(Icons.list),
+      text: 'Select',
+    ),
+    Tab(
+      icon: Icon(Icons.search),
+      text: 'Find',
+    ),
+    Tab(
+      icon: Icon(Icons.play_arrow_sharp),
+      text: 'Play',
+    ),
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // title: Text(widget.title),
-        title: Text("Test"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            DropdownButton(
-              value: scaleValue,
-              elevation: 16,
-              underline: Container(
-                height: 2,
-                color: Colors.deepPurpleAccent,
+    return DefaultTabController(
+      length: tabs.length,
+      child: Builder(
+        builder: (BuildContext context) {
+          final TabController tabController = DefaultTabController.of(context);
+          tabController.addListener(() {
+            if (!tabController.indexIsChanging) {
+              // To get index of current tab use tabController.index
+              stopPlaying();
+            }
+          });
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(widget.title),
+              bottom: TabBar(
+                tabs: tabs,
               ),
-              onChanged: (String newValue) {
-                setState(() {
-                  scaleValue = newValue;
-                  updateAvailableChordsList();
-                });
-              },
-              items: ScaleData.sdata.keys
-                  .toList()
-                  .map<DropdownMenuItem<String>>((var value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
             ),
-            DropdownButton(
-              value: chordValue,
-              elevation: 16,
-              underline: Container(
-                height: 2,
-                color: Colors.deepPurpleAccent,
-              ),
-              onChanged: (String newValue) {
-                setState(() {
-                  chordValue = newValue;
-                });
-              },
-              items: availableChords.map<DropdownMenuItem<String>>((var value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            DropdownButton(
-              value: octaveValue,
-              elevation: 16,
-              underline: Container(
-                height: 2,
-                color: Colors.deepPurpleAccent,
-              ),
-              onChanged: (String newValue) {
-                setState(() {
-                  octaveValue = newValue;
-                });
-              },
-              items: <String>[
-                '0',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            DropdownButton(
-              value: noteValue,
-              elevation: 16,
-              underline: Container(
-                height: 2,
-                color: Colors.deepPurpleAccent,
-              ),
-              onChanged: (String newValue) {
-                setState(() {
-                  noteValue = newValue;
-                });
-              },
-              items: <String>[
-                'C',
-                'C#',
-                'D',
-                'D#',
-                'E',
-                'F',
-                'F#',
-                'G',
-                'G#',
-                'A',
-                'A#',
-                'B'
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            FlatButton(
-                onPressed: playSound,
-                color: Colors.amber,
-                child: Text(
-                  "Play Button",
-                  style: TextStyle(fontSize: 20.0),
+            body: TabBarView(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          DropdownButton(
+                            value: noteValue,
+                            elevation: 16,
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                noteValue = newValue;
+                              });
+                            },
+                            items: <String>[
+                              'C',
+                              'C#',
+                              'D',
+                              'D#',
+                              'E',
+                              'F',
+                              'F#',
+                              'G',
+                              'G#',
+                              'A',
+                              'A#',
+                              'B'
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          DropdownButton(
+                            value: octaveValue,
+                            elevation: 16,
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                octaveValue = newValue;
+                              });
+                            },
+                            items: <String>[
+                              '0',
+                              '1',
+                              '2',
+                              '3',
+                              '4',
+                              '5',
+                              '6',
+                              '7',
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text("Scale"),
+                          DropdownButton(
+                            value: scaleValue,
+                            elevation: 16,
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                scaleValue = newValue;
+                                updateAvailableChordsList();
+                              });
+                            },
+                            items: ScaleData.sdata.keys
+                                .toList()
+                                .map<DropdownMenuItem<String>>((var value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text("Chord"),
+                          DropdownButton(
+                            value: chordValue,
+                            elevation: 16,
+                            underline: Container(
+                              height: 2,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                chordValue = newValue;
+                              });
+                            },
+                            items: availableChords
+                                .map<DropdownMenuItem<String>>((var value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      FlatButton(
+                          onPressed: playSound,
+                          color: Colors.amber,
+                          child: Text(
+                            "Play Button",
+                            style: TextStyle(fontSize: 20.0),
+                          )),
+                      PianoWidget(
+                        allKeys: notesMidiToPlay,
+                        canPlayManually: false,
+                        flutterMidi: _flutterMidi,
+                      ),
+                    ],
+                  ),
+                ),
+                Center(
+                    child: Column(
+                  children: [
+                    SpeechWidget(
+                      updateResultFxn: (value) => {
+                        _speechResult = value,
+                        print("yoyo: " + value),
+                      },
+                    ),
+                  ],
                 )),
-            SpeechWidget(
-              updateResultFxn: (value) => {
-                _speechResult = value,
-                print("yoyo: " + value),
-              },
+                Center(
+                  child: PianoWidget(
+                    allKeys: notesMidiToPlay,
+                    canPlayManually: true,
+                    flutterMidi: _flutterMidi,
+                  ),
+                ),
+              ],
             ),
-            PianoWidget(
-              allKeys: notesMidiToPlay,
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

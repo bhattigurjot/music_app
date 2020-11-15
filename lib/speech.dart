@@ -50,20 +50,22 @@ class _SpeechWidgetAppState extends State<SpeechWidget> {
     _speech.setRecognitionStartedHandler(onRecognitionStarted);
     _speech.setRecognitionResultHandler(onRecognitionResult);
     _speech.setRecognitionCompleteHandler(onRecognitionComplete);
-    _speech
-        .activate()
-        .then((res) => setState(() => _speechRecognitionAvailable = res));
+    _speech.activate().then((res) => {
+          if (mounted) {setState(() => _speechRecognitionAvailable = res)}
+        });
   }
 
   void start() => _speech
       .listen(locale: selectedLang.code)
       .then((result) => print('_MyAppState.start => result ${result}'));
 
-  void cancel() =>
-      _speech.cancel().then((result) => setState(() => _isListening = result));
+  void cancel() => _speech.cancel().then((result) => {
+        if (mounted) {setState(() => _isListening = result)}
+      });
 
-  void stop() =>
-      _speech.stop().then((result) => setState(() => _isListening = result));
+  void stop() => _speech
+      .stop()
+      .then((result) => mounted ? setState(() => _isListening = result) : null);
 
   void onSpeechAvailability(bool result) =>
       setState(() => _speechRecognitionAvailable = result);
